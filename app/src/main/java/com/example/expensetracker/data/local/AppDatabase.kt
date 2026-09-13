@@ -14,10 +14,13 @@ import com.example.expensetracker.data.local.entity.WarehouseComponentEntity
     entities = [
         ProductEntity::class,
         SaleEntity::class,
-        ExpenseEntity::class
+        ExpenseEntity::class,
+        WarehouseComponentEntity::class,
+        ProductRecipeEntity::class,
+        ProductionOrderEntity::class
     ],
     version = 1,
-    exportSchema = true
+    exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun productDao(): ProductDao
