@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.expensetracker.data.local.entity.ExpenseEntity
 import com.example.expensetracker.data.local.entity.ProductEntity
 import com.example.expensetracker.data.local.entity.SaleEntity
-import com.example.expensetracker.data.repository.BusinessRepository
+import com.example.expensetracker.data.repository.AppRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: BusinessRepository
+    private val repository: AppRepository
 ) : ViewModel() {
     val products: StateFlow<List<ProductEntity>> = repository.allProducts
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -23,7 +23,7 @@ class MainViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     fun processSale(productId: Long, quantity: Int, note: String) {
         viewModelScope.launch {
-            repository.registerSale(productId, quantity, note)
+            repository.sellProduct(productId, quantity, note)
         }
     }
     fun insertProduct(product: ProductEntity) {

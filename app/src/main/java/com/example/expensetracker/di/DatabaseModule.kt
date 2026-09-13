@@ -16,17 +16,21 @@ import javax.inject.Singleton
 object DatabaseModule {
     @Provides
     @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+    fun provideAppDatabase(
+        @ApplicationContext context: Context
+    ): AppDatabase {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "expense_tracker_db"
-        ).fallbackToDestructiveMigration().build()
+            AppDatabase.DATABASE_NAME
+        )
+        .fallbackToDestructiveMigration()
+        .build()
     }
     @Provides
-    fun provideProductDao(database: AppDatabase): ProductDao = database.productDao()
+    fun provideProductDao(db: AppDatabase): ProductDao = db.productDao()
     @Provides
-    fun provideSaleDao(database: AppDatabase): SaleDao = database.saleDao()
+    fun provideSaleDao(db: AppDatabase): SaleDao = db.saleDao()
     @Provides
-    fun provideExpenseDao(database: AppDatabase): ExpenseDao = database.expenseDao()
+    fun provideExpenseDao(db: AppDatabase): ExpenseDao = db.expenseDao()
 }

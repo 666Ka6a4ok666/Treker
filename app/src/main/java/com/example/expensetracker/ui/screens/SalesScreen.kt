@@ -6,10 +6,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.expensetracker.ui.viewmodel.MainViewModel
+import com.example.expensetracker.ui.sales.SalesViewModel
 @Composable
-fun SalesScreen(viewModel: MainViewModel) {
-    val sales by viewModel.sales.collectAsState()
+fun SalesScreen(viewModel: SalesViewModel) {
+    val sales by viewModel.salesList.collectAsState()
     var quantity by remember { mutableStateOf("1") }
     var note by remember { mutableStateOf("") }
     Column(

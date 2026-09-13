@@ -14,9 +14,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.expensetracker.ui.screens.DashboardScreen
 import com.example.expensetracker.ui.screens.ExpensesScreen
-import com.example.expensetracker.ui.screens.InventoryScreen
+import com.example.expensetracker.ui.products.ProductsScreen
 import com.example.expensetracker.ui.screens.SalesScreen
-import com.example.expensetracker.ui.viewmodel.MainViewModel
+import com.example.expensetracker.ui.products.ProductViewModel
+import com.example.expensetracker.ui.sales.SalesViewModel
+import com.example.expensetracker.ui.viewmodel.MainViewModel // Still keep this if Dashboard uses it
 import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -30,7 +32,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 @Composable
-fun MainAppScreen(viewModel: MainViewModel = hiltViewModel()) {
+fun MainAppScreen() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: "dashboard"
@@ -70,15 +72,19 @@ fun MainAppScreen(viewModel: MainViewModel = hiltViewModel()) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("dashboard") {
+                val viewModel: MainViewModel = hiltViewModel()
                 DashboardScreen(viewModel)
             }
             composable("inventory") {
-                InventoryScreen(viewModel)
+                val viewModel: ProductViewModel = hiltViewModel()
+                ProductsScreen(viewModel, onAddProductClick = { /* Handle add */ })
             }
             composable("sales") {
+                val viewModel: SalesViewModel = hiltViewModel()
                 SalesScreen(viewModel)
             }
             composable("expenses") {
+                val viewModel: MainViewModel = hiltViewModel()
                 ExpensesScreen(viewModel)
             }
         }
