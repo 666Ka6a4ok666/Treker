@@ -1,6 +1,7 @@
 package com.example.expensetracker.ui.sales
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.expensetracker.data.local.entity.ProductEntity
 import com.example.expensetracker.data.local.entity.SaleEntity
 import com.example.expensetracker.data.repository.AppRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,6 +12,8 @@ import javax.inject.Inject
 class SalesViewModel @Inject constructor(
     private val repository: AppRepository
 ) : ViewModel() {
+    val products: StateFlow<List<ProductEntity>> = repository.allProducts
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val salesList: StateFlow<List<SaleEntity>> = repository.allSales
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val totalRevenue: StateFlow<Double> = repository.totalRevenue

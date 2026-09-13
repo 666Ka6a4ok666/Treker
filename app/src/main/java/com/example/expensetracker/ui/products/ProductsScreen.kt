@@ -17,14 +17,30 @@ import com.example.expensetracker.data.local.entity.ProductEntity
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductsScreen(
-    viewModel: ProductViewModel,
-    onAddProductClick: () -> Unit
+    viewModel: ProductViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    var showDialog by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(Unit) {
+        viewModel.userMessage.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
+    if (showDialog) {
+        AddProductDialog(
+            onDismiss = { showDialog = false },
+            onConfirm = { name, category, cost, sale, qty, sku ->
+                viewModel.addProduct(name, category, cost, sale, qty, sku)
+                showDialog = false
+            }
+        )
+    }
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Склад товарів (Room DB)") }) },
+        topBar = { TopAppBar(title = { Text("Склад товарів") }) },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddProductClick) {
+            FloatingActionButton(onClick = { showDialog = true }) {
                 Icon(Icons.Default.Add, contentDescription = "Додати товар")
             }
         }
@@ -50,6 +66,50 @@ fun ProductsScreen(
             }
         }
     }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddProductDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (name: String, category: String, cost: Double, sale: Double, qty: Int, sku: String) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("Загальне") }
+    var costPrice by remember { mutableStateOf("") }
+    var salePrice by remember { mutableStateOf("") }
+    var quantity by remember { mutableStateOf("") }
+    var sku by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Новий товар") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Назва") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = category, onValueChange = { category = it }, label = { Text("Категорія") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = sku, onValueChange = { sku = it }, label = { Text("SKU") }, modifier = Modifier.fillMaxWidth())
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(value = costPrice, onValueChange = { costPrice = it }, label = { Text("Собівартість") }, modifier = Modifier.weight(1f))
+                    OutlinedTextField(value = salePrice, onValueChange = { salePrice = it }, label = { Text("Ціна продажу") }, modifier = Modifier.weight(1f))
+                }
+                OutlinedTextField(value = quantity, onValueChange = { quantity = it }, label = { Text("Кількість") }, modifier = Modifier.fillMaxWidth())
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirm(
+                    name,
+                    category,
+                    costPrice.toDoubleOrNull() ?: 0.0,
+                    salePrice.toDoubleOrNull() ?: 0.0,
+                    quantity.toIntOrNull() ?: 0,
+                    sku
+                )
+            }) { Text("Додати") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Скасувати") }
+        }
+    )
 }
 @Composable
 fun ProductCardItem(product: ProductEntity) {

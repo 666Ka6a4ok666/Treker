@@ -77,7 +77,7 @@ fun MainAppScreen() {
             }
             composable("inventory") {
                 val viewModel: ProductViewModel = hiltViewModel()
-                ProductsScreen(viewModel, onAddProductClick = { /* Handle add */ })
+                ProductsScreen(viewModel)
             }
             composable("sales") {
                 val viewModel: SalesViewModel = hiltViewModel()

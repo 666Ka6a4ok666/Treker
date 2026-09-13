@@ -19,7 +19,7 @@ data class ProductEntity(
     @ColumnInfo(name = "sku")
     val sku: String = "",
     @ColumnInfo(name = "component_id")
-    val componentId: Long? = 1L,
+    val componentId: Long? = null,
     @ColumnInfo(name = "components_required_per_unit")
     val componentsRequiredPerUnit: Int = 2,
     @ColumnInfo(name = "created_at")

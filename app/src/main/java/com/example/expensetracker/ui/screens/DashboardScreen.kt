@@ -9,13 +9,11 @@ import androidx.compose.ui.unit.dp
 import com.example.expensetracker.ui.viewmodel.MainViewModel
 @Composable
 fun DashboardScreen(viewModel: MainViewModel) {
-    val sales by viewModel.sales.collectAsState()
-    val expenses by viewModel.expenses.collectAsState()
+    val totalRevenue by viewModel.totalRevenue.collectAsState()
+    val totalProfit by viewModel.totalGrossProfit.collectAsState()
+    val totalExpenses by viewModel.totalExpenses.collectAsState()
+    val netProfit by viewModel.netProfit.collectAsState()
     val products by viewModel.products.collectAsState()
-    val totalRevenue = sales.sumOf { it.totalAmount }
-    val totalProfit = sales.sumOf { it.profit }
-    val totalExpenses = expenses.sumOf { it.amount }
-    val netProfit = totalProfit - totalExpenses
     val inventoryValue = products.sumOf { it.costPrice * it.stockQuantity }
     Column(
         modifier = Modifier
@@ -37,4 +35,4 @@ fun DashboardScreen(viewModel: MainViewModel) {
             }
         }
     }
-}
+}

@@ -21,6 +21,14 @@ class MainViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val expenses: StateFlow<List<ExpenseEntity>> = repository.allExpenses
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val totalRevenue: StateFlow<Double> = repository.totalRevenue
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+    val totalGrossProfit: StateFlow<Double> = repository.totalGrossProfit
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+    val totalExpenses: StateFlow<Double> = repository.totalExpenses
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+    val netProfit: StateFlow<Double> = repository.netProfit
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
     fun processSale(productId: Long, quantity: Int, note: String) {
         viewModelScope.launch {
             repository.sellProduct(productId, quantity, note)
