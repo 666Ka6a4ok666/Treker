@@ -1,4 +1,6 @@
 package com.example.expensetracker.data.repository
+import androidx.room.withTransaction
+import com.example.expensetracker.data.local.AppDatabase
 import com.example.expensetracker.data.local.dao.ExpenseDao
 import com.example.expensetracker.data.local.dao.ProductDao
 import com.example.expensetracker.data.local.dao.SaleDao
@@ -13,6 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 @Singleton
 class AppRepository @Inject constructor(
+    private val db: AppDatabase,
     private val productDao: ProductDao,
     private val saleDao: SaleDao,
     private val expenseDao: ExpenseDao,
@@ -38,27 +41,33 @@ class AppRepository @Inject constructor(
         return expenseDao.insertExpense(expense)
     }
     suspend fun sellProduct(productId: Long, quantity: Int, note: String = ""): Result<Unit> {
-        val product = productDao.getProductById(productId)
-            ?: return Result.failure(Exception("Товар не знайдено"))
-        if (product.stockQuantity < quantity) {
-            return Result.failure(Exception("Недостатня кількість на складі! В наявності: ${product.stockQuantity}"))
+        return try {
+            db.withTransaction {
+                val product = productDao.getProductById(productId)
+                    ?: return@withTransaction Result.failure(Exception("Товар не знайдено"))
+                if (product.stockQuantity < quantity) {
+                    return@withTransaction Result.failure(Exception("Недостатня кількість на складі! В наявності: ${product.stockQuantity}"))
+                }
+                val updatedRows = productDao.decreaseStock(productId, quantity)
+                if (updatedRows == 0) {
+                    return@withTransaction Result.failure(Exception("Не вдалося списати товар зі складу"))
+                }
+                val totalAmount = product.salePrice * quantity
+                val profit = (product.salePrice - product.costPrice) * quantity
+                val sale = SaleEntity(
+                    productId = product.id,
+                    productName = product.name,
+                    quantity = quantity,
+                    unitPrice = product.salePrice,
+                    totalAmount = totalAmount,
+                    profit = profit,
+                    note = note
+                )
+                saleDao.insertSale(sale)
+                Result.success(Unit)
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
-        val updatedRows = productDao.decreaseStock(productId, quantity)
-        if (updatedRows == 0) {
-            return Result.failure(Exception("Не вдалося списати товар зі складу"))
-        }
-        val totalAmount = product.salePrice * quantity
-        val profit = (product.salePrice - product.costPrice) * quantity
-        val sale = SaleEntity(
-            productId = product.id,
-            productName = product.name,
-            quantity = quantity,
-            unitPrice = product.salePrice,
-            totalAmount = totalAmount,
-            profit = profit,
-            note = note
-        )
-        saleDao.insertSale(sale)
-        return Result.success(Unit)
     }
 }

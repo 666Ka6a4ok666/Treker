@@ -12,13 +12,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.ShoppingCart
 import com.example.expensetracker.ui.screens.DashboardScreen
 import com.example.expensetracker.ui.screens.ExpensesScreen
 import com.example.expensetracker.ui.products.ProductsScreen
 import com.example.expensetracker.ui.screens.SalesScreen
 import com.example.expensetracker.ui.products.ProductViewModel
 import com.example.expensetracker.ui.sales.SalesViewModel
-import com.example.expensetracker.ui.viewmodel.MainViewModel // Still keep this if Dashboard uses it
+import com.example.expensetracker.ui.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -43,25 +48,25 @@ fun MainAppScreen() {
                     selected = currentRoute == "dashboard",
                     onClick = { navController.navigate("dashboard") },
                     label = { Text("Дашборд") },
-                    icon = {}
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Дашборд") }
                 )
                 NavigationBarItem(
                     selected = currentRoute == "inventory",
                     onClick = { navController.navigate("inventory") },
                     label = { Text("Склад") },
-                    icon = {}
+                    icon = { Icon(Icons.Default.List, contentDescription = "Склад") }
                 )
                 NavigationBarItem(
                     selected = currentRoute == "sales",
                     onClick = { navController.navigate("sales") },
                     label = { Text("Продажі") },
-                    icon = {}
+                    icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Продажі") }
                 )
                 NavigationBarItem(
                     selected = currentRoute == "expenses",
                     onClick = { navController.navigate("expenses") },
                     label = { Text("Витрати") },
-                    icon = {}
+                    icon = { Icon(Icons.Default.Receipt, contentDescription = "Витрати") }
                 )
             }
         }
