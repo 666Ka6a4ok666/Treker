@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import com.example.expensetracker.data.local.entity.ProductEntity
 import com.example.expensetracker.ui.sales.SalesViewModel
 import kotlinx.coroutines.launch
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SalesScreen(viewModel: SalesViewModel) {
     val sales by viewModel.salesList.collectAsState()
