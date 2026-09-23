@@ -11,6 +11,7 @@ import com.example.expensetracker.data.local.entity.SaleEntity
 import com.example.expensetracker.data.local.entity.WarehouseComponentEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 @Singleton
@@ -25,9 +26,9 @@ class AppRepository @Inject constructor(
     val allSales: Flow<List<SaleEntity>> = saleDao.getAllSales()
     val allExpenses: Flow<List<ExpenseEntity>> = expenseDao.getAllExpenses()
     val allComponents: Flow<List<WarehouseComponentEntity>> = warehouseComponentDao.getAllComponents()
-    val totalRevenue: Flow<Double> = saleDao.getTotalRevenue()
-    val totalGrossProfit: Flow<Double> = saleDao.getTotalGrossProfit()
-    val totalExpenses: Flow<Double> = expenseDao.getTotalExpenses()
+    val totalRevenue: Flow<Double> = saleDao.getTotalRevenue().map { it ?: 0.0 }
+    val totalGrossProfit: Flow<Double> = saleDao.getTotalGrossProfit().map { it ?: 0.0 }
+    val totalExpenses: Flow<Double> = expenseDao.getTotalExpenses().map { it ?: 0.0 }
     val netProfit: Flow<Double> = combine(
         totalGrossProfit,
         totalExpenses
