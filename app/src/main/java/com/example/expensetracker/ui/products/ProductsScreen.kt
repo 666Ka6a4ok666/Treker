@@ -27,12 +27,23 @@ fun ProductsScreen(
             snackbarHostState.showSnackbar(message)
         }
     }
+    var sellingProduct by remember { mutableStateOf<ProductEntity?>(null) }
     if (showDialog) {
         AddProductDialog(
             onDismiss = { showDialog = false },
             onConfirm = { name, category, cost, sale, qty, sku ->
                 viewModel.addProduct(name, category, cost, sale, qty, sku)
                 showDialog = false
+            }
+        )
+    }
+    sellingProduct?.let { product ->
+        SellProductDialog(
+            product = product,
+            onDismiss = { sellingProduct = null },
+            onConfirm = { quantity, note ->
+                viewModel.sellProduct(product.id, quantity, note)
+                sellingProduct = null
             }
         )
     }
@@ -58,7 +69,10 @@ fun ProductsScreen(
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             items(current.products, key = { it.id }) { product ->
-                                ProductCardItem(product = product)
+                                ProductCardItem(
+                                    product = product,
+                                    onSell = { sellingProduct = product }
+                                )
                             }
                         }
                     }
@@ -66,6 +80,50 @@ fun ProductsScreen(
             }
         }
     }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SellProductDialog(
+    product: ProductEntity,
+    onDismiss: () -> Unit,
+    onConfirm: (quantity: Int, note: String) -> Unit
+) {
+    var quantity by remember { mutableStateOf("1") }
+    var note by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Реалізація товару: ${product.name}") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("В наявності: ${product.stockQuantity} шт.")
+                OutlinedTextField(
+                    value = quantity,
+                    onValueChange = { quantity = it },
+                    label = { Text("Кількість для реалізації") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = note,
+                    onValueChange = { note = it },
+                    label = { Text("Нотатка") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val qty = quantity.toIntOrNull() ?: 0
+                    if (qty > 0) {
+                        onConfirm(qty, note)
+                    }
+                }
+            ) { Text("Продати") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Скасувати") }
+        }
+    )
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -112,7 +170,10 @@ fun AddProductDialog(
     )
 }
 @Composable
-fun ProductCardItem(product: ProductEntity) {
+fun ProductCardItem(
+    product: ProductEntity,
+    onSell: () -> Unit = {}
+) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
@@ -140,6 +201,14 @@ fun ProductCardItem(product: ProductEntity) {
                 Text(text = "Закупка: ${product.costPrice} грн", fontSize = 14.sp, color = Color.Gray)
                 Text(text = "Продаж: ${product.salePrice} грн", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 Text(text = "Маржа: +${product.marginPerUnit} грн", fontSize = 14.sp, color = Color(0xFF1B5E20))
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = onSell,
+                enabled = product.stockQuantity > 0,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Продати (Реалізувати)")
             }
         }
     }

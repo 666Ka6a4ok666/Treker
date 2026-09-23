@@ -44,4 +44,14 @@ class ProductViewModel @Inject constructor(
             _userMessage.emit("Товар успішно додано!")
         }
     }
+    fun sellProduct(productId: Long, quantity: Int, note: String = "") {
+        viewModelScope.launch {
+            val result = repository.sellProduct(productId, quantity, note)
+            result.onSuccess {
+                _userMessage.emit("Успішно реалізовано $quantity шт.!")
+            }.onFailure { exception ->
+                _userMessage.emit(exception.message ?: "Помилка при реалізації товару")
+            }
+        }
+    }
 }
