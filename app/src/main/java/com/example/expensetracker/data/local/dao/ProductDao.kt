@@ -15,8 +15,11 @@ interface ProductDao {
     @Delete
     suspend fun deleteProduct(product: ProductEntity): Int
 
-    @Query("UPDATE products SET stock_quantity = stock_quantity - :soldQuantity WHERE id = :productId AND stock_quantity >= :soldQuantity")
+        @Query("UPDATE products SET stock_quantity = stock_quantity - :soldQuantity WHERE id = :productId AND stock_quantity >= :soldQuantity")
     suspend fun decreaseStock(productId: Long, soldQuantity: Int): Int
+
+    @Query("UPDATE products SET stock_quantity = stock_quantity + :qty WHERE id = :productId")
+    suspend fun increaseStock(productId: Long, qty: Int)
 
     @Query("SELECT * FROM products WHERE stock_quantity <= :minStock")
     fun getLowStockProducts(minStock: Int): Flow<List<ProductEntity>>

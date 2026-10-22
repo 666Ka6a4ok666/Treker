@@ -1,4 +1,5 @@
 package com.example.expensetracker.ui.products
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.expensetracker.data.local.entity.ProductEntity
@@ -7,17 +8,20 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 sealed interface ProductUiState {
     object Loading : ProductUiState
     data class Success(val products: List<ProductEntity>) : ProductUiState
     data class Error(val message: String) : ProductUiState
 }
+
 @HiltViewModel
 class ProductViewModel @Inject constructor(
     private val repository: AppRepository
 ) : ViewModel() {
     private val _userMessage = MutableSharedFlow<String>()
     val userMessage = _userMessage.asSharedFlow()
+
     val uiState: StateFlow<ProductUiState> = repository.allProducts
         .map<List<ProductEntity>, ProductUiState> { ProductUiState.Success(it) }
         .catch { emit(ProductUiState.Error(it.localizedMessage ?: "Помилка завантаження")) }
@@ -26,6 +30,7 @@ class ProductViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = ProductUiState.Loading
         )
+
     fun addProduct(name: String, category: String, costPrice: Double, salePrice: Double, quantity: Int, sku: String) {
         if (name.isBlank() || costPrice <= 0 || salePrice <= 0 || quantity < 0) {
             viewModelScope.launch { _userMessage.emit("Заповніть коректно всі поля!") }
@@ -44,11 +49,26 @@ class ProductViewModel @Inject constructor(
             _userMessage.emit("Товар успішно додано!")
         }
     }
-    fun sellProduct(productId: Long, quantity: Int, note: String = "") {
+
+    fun deleteProduct(product: ProductEntity) {
         viewModelScope.launch {
-            val result = repository.sellProduct(productId, quantity, note)
+            repository.deleteProduct(product)
+            _userMessage.emit("Товар «${product.name}» видалено")
+        }
+    }
+
+    fun sellProduct(
+        productId: Long,
+        quantity: Int,
+        note: String = "",
+        isCredit: Boolean = false,
+        debtorName: String = ""
+    ) {
+        viewModelScope.launch {
+            val result = repository.sellProduct(productId, quantity, note, isCredit, debtorName)
             result.onSuccess {
-                _userMessage.emit("Успішно реалізовано $quantity шт.!")
+                val statusText = if (isCredit) "в борг ($debtorName)" else "оплачено"
+                _userMessage.emit("Успішно реалізовано $quantity шт. ($statusText)!")
             }.onFailure { exception ->
                 _userMessage.emit(exception.message ?: "Помилка при реалізації товару")
             }

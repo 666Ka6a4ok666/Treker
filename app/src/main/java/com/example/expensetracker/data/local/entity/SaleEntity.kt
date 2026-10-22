@@ -1,9 +1,11 @@
 package com.example.expensetracker.data.local.entity
+
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+
 @Entity(
     tableName = "sales",
     foreignKeys = [
@@ -34,5 +36,13 @@ data class SaleEntity(
     @ColumnInfo(name = "sale_date")
     val saleDate: Long = System.currentTimeMillis(),
     @ColumnInfo(name = "note")
-    val note: String = ""
+    val note: String = "",
+    @ColumnInfo(name = "is_credit")
+    val isCredit: Boolean = false,
+    @ColumnInfo(name = "debtor_name")
+    val debtorName: String = "",
+        @ColumnInfo(name = "is_paid")
+    val isPaid: Boolean = true,
+    @ColumnInfo(name = "paid_at")
+    val paidAt: Long? = if (isPaid) System.currentTimeMillis() else null
 )
